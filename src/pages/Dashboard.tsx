@@ -3,10 +3,10 @@ import { Link } from 'react-router-dom';
 import { getStatusColor, getStatusLabel, formatDate, calculateTeamStandings } from '../utils/helpers';
 
 export default function Dashboard() {
-  const { state, getTeam, getMatchupsForWeek } = useLeague();
-  const standings = calculateTeamStandings(state.teams, state.matchups);
-  const currentWeekMatchups = getMatchupsForWeek(state.currentWeek);
-  const pendingMatchups = state.matchups.filter(m => m.status === 'score_submitted' || m.status === 'disputed');
+  const { state, league, getTeam, getMatchupsForWeek } = useLeague();
+  const standings = calculateTeamStandings(league.teams, league.matchups);
+  const currentWeekMatchups = getMatchupsForWeek(league.currentWeek);
+  const pendingMatchups = league.matchups.filter(m => m.status === 'score_submitted' || m.status === 'disputed');
 
   return (
     <div className="space-y-6">
@@ -14,25 +14,42 @@ export default function Dashboard() {
       <div className="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-2xl p-6 md:p-8 text-white shadow-xl">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold">Welcome to PicklePal 🥒</h1>
+            <h1 className="text-2xl md:text-3xl font-bold">
+              {league.isDemo ? '🎮 Demo League' : `🏆 ${league.name}`}
+            </h1>
             <p className="text-emerald-100 mt-1">
-              {state.seasonName} • Week {state.currentWeek} • {state.teams.length} Teams • {state.players.length} Players
+              {league.seasonName} • Week {league.currentWeek} • {league.teams.length} Teams • {league.players.length} Players
             </p>
+            {league.isDemo && (
+              <p className="text-emerald-200 text-sm mt-2">
+                This is a demo league for testing. Create your own league to get started!
+              </p>
+            )}
           </div>
-          <Link
-            to="/matchups"
-            className="bg-white/20 hover:bg-white/30 backdrop-blur-sm px-4 py-2 rounded-lg font-medium transition-all text-center"
-          >
-            View This Week's Matches →
-          </Link>
+          <div className="flex gap-2">
+            {league.isDemo && (
+              <Link
+                to="/new-league"
+                className="bg-white/20 hover:bg-white/30 backdrop-blur-sm px-4 py-2 rounded-lg font-medium transition-all text-center"
+              >
+                ✨ Create Your League
+              </Link>
+            )}
+            <Link
+              to="/matchups"
+              className="bg-white/20 hover:bg-white/30 backdrop-blur-sm px-4 py-2 rounded-lg font-medium transition-all text-center"
+            >
+              View This Week's Matches →
+            </Link>
+          </div>
         </div>
       </div>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard icon="👥" label="Teams" value={state.teams.length} color="blue" />
-        <StatCard icon="🏓" label="Players" value={state.players.length} color="emerald" />
-        <StatCard icon="⚔️" label="Matches Played" value={state.matchups.filter(m => m.status === 'confirmed').length} color="purple" />
+        <StatCard icon="👥" label="Teams" value={league.teams.length} color="blue" />
+        <StatCard icon="🏓" label="Players" value={league.players.length} color="emerald" />
+        <StatCard icon="⚔️" label="Matches Played" value={league.matchups.filter(m => m.status === 'confirmed').length} color="purple" />
         <StatCard icon="⏳" label="Pending Scores" value={pendingMatchups.length} color="amber" />
       </div>
 
@@ -40,7 +57,7 @@ export default function Dashboard() {
         {/* This Week's Matchups */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">Week {state.currentWeek} Matchups</h2>
+            <h2 className="text-lg font-semibold text-gray-900">Week {league.currentWeek} Matchups</h2>
             <Link to="/matchups" className="text-sm text-emerald-600 hover:text-emerald-700 font-medium">
               View All →
             </Link>
@@ -49,7 +66,7 @@ export default function Dashboard() {
             {currentWeekMatchups.length === 0 ? (
               <p className="text-gray-500 text-sm py-4 text-center">No matchups scheduled for this week</p>
             ) : (
-              currentWeekMatchups.map(matchup => {
+              currentWeekMatchups.map((matchup: any) => {
                 const homeTeam = getTeam(matchup.homeTeamId);
                 const awayTeam = getTeam(matchup.awayTeamId);
                 return (
@@ -81,7 +98,7 @@ export default function Dashboard() {
             </Link>
           </div>
           <div className="space-y-2">
-            {standings.slice(0, 6).map((team, idx) => (
+            {standings.slice(0, 6).map((team: any, idx: number) => (
               <div key={team.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
                 <span className={`w-6 h-6 flex items-center justify-center rounded-full text-xs font-bold ${
                   idx === 0 ? 'bg-yellow-100 text-yellow-700' :
@@ -105,7 +122,7 @@ export default function Dashboard() {
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-5">
           <h2 className="text-lg font-semibold text-amber-800 mb-3">⚠️ Pending Actions</h2>
           <div className="space-y-2">
-            {pendingMatchups.map(matchup => {
+            {pendingMatchups.map((matchup: any) => {
               const homeTeam = getTeam(matchup.homeTeamId);
               const awayTeam = getTeam(matchup.awayTeamId);
               return (
@@ -135,11 +152,11 @@ export default function Dashboard() {
       )}
 
       {/* Recent Activity */}
-      {state.auditLog.length > 0 && (
+      {league.auditLog.length > 0 && (
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
           <h2 className="text-lg font-semibold text-gray-900 mb-3">Recent Activity</h2>
           <div className="space-y-2">
-            {state.auditLog.slice(0, 5).map(entry => (
+            {league.auditLog.slice(0, 5).map((entry: any) => (
               <div key={entry.id} className="flex items-start gap-3 text-sm">
                 <span className="text-gray-400 text-xs mt-0.5 whitespace-nowrap">
                   {new Date(entry.timestamp).toLocaleString()}

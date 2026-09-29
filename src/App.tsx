@@ -8,6 +8,7 @@ import Matchups from './pages/Matchups';
 import Rankings from './pages/Rankings';
 import Admin from './pages/Admin';
 import ConfirmScore from './pages/ConfirmScore';
+import NewLeague from './pages/NewLeague';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
             <Route path="/matchups" element={<Matchups />} />
             <Route path="/matchups/:matchupId/confirm" element={<ConfirmScore />} />
             <Route path="/rankings" element={<Rankings />} />
+            <Route path="/new-league" element={<NewLeague />} />
             <Route path="/admin" element={<Admin />} />
           </Routes>
         </Layout>
