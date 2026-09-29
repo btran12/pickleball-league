@@ -1,0 +1,379 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: PicklePal - SAM Template for local development and simplified deployment
+
+Globals:
+  Function:
+    Runtime: nodejs20.x
+    Timeout: 30
+    MemorySize: 256
+    Environment:
+      Variables:
+        TEAMS_TABLE: !Ref TeamsTable
+        PLAYERS_TABLE: !Ref PlayersTable
+        MATCHUPS_TABLE: !Ref MatchupsTable
+        GAMES_TABLE: !Ref GamesTable
+        TOKENS_TABLE: !Ref TokensTable
+        AUDIT_TABLE: !Ref AuditTable
+        FRONTEND_URL: !Sub 'https://${FrontendBucket}.s3.amazonaws.com'
+        AUTO_CONFIRM_HOURS: '48'
+
+Parameters:
+  AdminEmail:
+    Type: String
+    Description: Admin user email address
+
+Resources:
+  # ----------------------------------------------------------
+  # API
+  # ----------------------------------------------------------
+  PicklePalApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: prod
+      Cors:
+        AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
+        AllowHeaders: "'Content-Type,Authorization'"
+        AllowOrigin: "'*'"
+      Auth:
+        Authorizers:
+          CognitoAuthorizer:
+            UserPoolArn: !GetAtt CognitoUserPool.Arn
+
+  # ----------------------------------------------------------
+  # Lambda Functions
+  # ----------------------------------------------------------
+  ApiHandlerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/lambda/api-handler/
+      Handler: index.handler
+      Events:
+        ApiRoot:
+          Type: Api
+          Properties:
+            RestApiId: !Ref PicklePalApi
+            Path: /
+            Method: ANY
+        Teams:
+          Type: Api
+          Properties:
+            RestApiId: !Ref PicklePalApi
+            Path: /teams
+            Method: ANY
+        TeamById:
+          Type: Api
+          Properties:
+            RestApiId: !Ref PicklePalApi
+            Path: /teams/{id}
+            Method: ANY
+        Players:
+          Type: Api
+          Properties:
+            RestApiId: !Ref PicklePalApi
+            Path: /players
+            Method: ANY
+        PlayerById:
+          Type: Api
+          Properties:
+            RestApiId: !Ref PicklePalApi
+            Path: /players/{id}
+            Method: ANY
+        Matchups:
+          Type: Api
+          Properties:
+            RestApiId: !Ref PicklePalApi
+            Path: /matchups
+            Method: ANY
+        MatchupById:
+          Type: Api
+          Properties:
+            RestApiId: !Ref PicklePalApi
+            Path: /matchups/{id}
+            Method: ANY
+        Scores:
+          Type: Api
+          Properties:
+            RestApiId: !Ref PicklePalApi
+            Path: /matchups/{id}/scores
+            Method: ANY
+        ConfirmToken:
+          Type: Api
+          Properties:
+            RestApiId: !Ref PicklePalApi
+            Path: /confirm/{token}
+            Method: ANY
+        Rankings:
+          Type: Api
+          Properties:
+            RestApiId: !Ref PicklePalApi
+            Path: /rankings
+            Method: ANY
+        Admin:
+          Type: Api
+          Properties:
+            RestApiId: !Ref PicklePalApi
+            Path: /admin
+            Method: ANY
+            Auth:
+              Authorizer: CognitoAuthorizer
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TeamsTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref PlayersTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref MatchupsTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref GamesTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TokensTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuditTable
+        - SESCrudPolicy:
+            IdentityName: picklepal.app
+        - SNSPublishMessagePolicy:
+            TopicArn: !Ref NotificationTopic
+
+  AutoConfirmFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/lambda/auto-confirm/
+      Handler: index.handler
+      Timeout: 60
+      Events:
+        HourlyCheck:
+          Type: Schedule
+          Properties:
+            Schedule: rate(1 hour)
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref MatchupsTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TokensTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuditTable
+        - SNSPublishMessagePolicy:
+            TopicArn: !Ref NotificationTopic
+
+  WeeklyReminderFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/lambda/weekly-reminder/
+      Handler: index.handler
+      Timeout: 60
+      Events:
+        MondayMorning:
+          Type: Schedule
+          Properties:
+            Schedule: cron(0 9 ? * MON *)
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref MatchupsTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref TeamsTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref PlayersTable
+        - SESCrudPolicy:
+            IdentityName: picklepal.app
+        - SNSPublishMessagePolicy:
+            TopicArn: !Ref NotificationTopic
+
+  # ----------------------------------------------------------
+  # DynamoDB Tables
+  # ----------------------------------------------------------
+  TeamsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+
+  PlayersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        - AttributeName: teamId
+          AttributeType: S
+        - AttributeName: rating
+          AttributeType: N
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: teamId-index
+          KeySchema:
+            - AttributeName: teamId
+              KeyType: HASH
+            - AttributeName: rating
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+
+  MatchupsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        - AttributeName: weekNumber
+          AttributeType: N
+        - AttributeName: status
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: weekNumber-index
+          KeySchema:
+            - AttributeName: weekNumber
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+        - IndexName: status-index
+          KeySchema:
+            - AttributeName: status
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+
+  GamesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        - AttributeName: matchupId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: matchupId-index
+          KeySchema:
+            - AttributeName: matchupId
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+
+  TokensTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: token
+          AttributeType: S
+        - AttributeName: matchupId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: token
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: matchupId-index
+          KeySchema:
+            - AttributeName: matchupId
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+      TimeToLiveSpecification:
+        AttributeName: ttl
+        Enabled: true
+
+  AuditTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        - AttributeName: timestamp
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: timestamp-index
+          KeySchema:
+            - AttributeName: timestamp
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+      TimeToLiveSpecification:
+        AttributeName: ttl
+        Enabled: true
+
+  # ----------------------------------------------------------
+  # Cognito
+  # ----------------------------------------------------------
+  CognitoUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: picklepal-admin-pool
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: true
+      AutoVerifiedAttributes:
+        - email
+      UsernameAttributes:
+        - email
+
+  CognitoUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      UserPoolId: !Ref CognitoUserPool
+      ClientName: picklepal-admin-client
+      GenerateSecret: false
+      ExplicitAuthFlows:
+        - ALLOW_USER_PASSWORD_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+
+  AdminUser:
+    Type: AWS::Cognito::UserPoolUser
+    Properties:
+      UserPoolId: !Ref CognitoUserPool
+      Username: !Ref AdminEmail
+      UserAttributes:
+        - Name: email
+          Value: !Ref AdminEmail
+      DesiredDeliveryMediums:
+        - EMAIL
+
+  # ----------------------------------------------------------
+  # SNS
+  # ----------------------------------------------------------
+  NotificationTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: picklepal-notifications
+
+  # ----------------------------------------------------------
+  # S3 Frontend
+  # ----------------------------------------------------------
+  FrontendBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: index.html
+
+Outputs:
+  ApiEndpoint:
+    Description: API Gateway endpoint URL
+    Value: !Sub 'https://${PicklePalApi}.execute-api.${AWS::Region}.amazonaws.com/prod'
+  FrontendBucket:
+    Description: S3 bucket for frontend
+    Value: !Ref FrontendBucket
+  CognitoUserPoolId:
+    Description: Cognito User Pool ID
+    Value: !Ref CognitoUserPool
+  CognitoClientId:
+    Description: Cognito Client ID
+    Value: !Ref CognitoUserPoolClient
