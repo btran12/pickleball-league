@@ -61,13 +61,26 @@ export interface AuditEntry {
   userId: string;
 }
 
-export interface LeagueState {
-  players: Player[];
+export interface League {
+  id: string;
+  name: string;
+  seasonName: string;
+  startDate: string; // ISO date string
+  matchDayOfWeek: number; // 0=Sunday, 1=Monday, ... 6=Saturday
+  matchTime: string; // HH:mm format
+  totalWeeks: number;
+  isDemo: boolean;
+  createdAt: string;
   teams: Team[];
+  players: Player[];
   matchups: Matchup[];
   tokens: ConfirmationToken[];
   auditLog: AuditEntry[];
   currentWeek: number;
-  seasonName: string;
+}
+
+export interface LeagueState {
+  leagues: League[];
+  currentLeagueId: string;
   isAdmin: boolean;
 }
