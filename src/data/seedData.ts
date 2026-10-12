@@ -1,13 +1,6 @@
 import { Player, Team, Matchup } from '../types';
 
-export const seedTeams: Team[] = [
-  { id: 't1', name: 'Smash Masters', color: '#3B82F6', wins: 3, losses: 1, pointsFor: 148, pointsAgainst: 112 },
-  { id: 't2', name: 'Dink Dynasties', color: '#10B981', wins: 2, losses: 2, pointsFor: 130, pointsAgainst: 135 },
-  { id: 't3', name: 'Kitchen Killers', color: '#F59E0B', wins: 4, losses: 0, pointsFor: 160, pointsAgainst: 95 },
-  { id: 't4', name: 'Net Ninjas', color: '#EF4444', wins: 1, losses: 3, pointsFor: 105, pointsAgainst: 150 },
-  { id: 't5', name: 'Paddle Pals', color: '#8B5CF6', wins: 2, losses: 2, pointsFor: 125, pointsAgainst: 128 },
-  { id: 't6', name: 'Volley Vipers', color: '#EC4899', wins: 0, losses: 4, pointsFor: 98, pointsAgainst: 146 },
-];
+export const seedTeams: Team[] = [];
 
 export const seedPlayers: Player[] = [
   { id: 'p1', name: 'Long Nguyen', email: 'nguyenlongsuzuki@icloud.com', phone: '', teamId: null, rating: 1200, wins: 0, losses: 0, avatar: '🏓' },
@@ -43,6 +36,7 @@ export const seedPlayers: Player[] = [
   { id: 'p31', name: 'Thomas Pham', email: '', phone: '', teamId: null, rating: 1200, wins: 0, losses: 0, avatar: '🏓' },
   { id: 'p32', name: 'Van Truong', email: '', phone: '', teamId: null, rating: 1200, wins: 0, losses: 0, avatar: '🏓' },
   { id: 'p33', name: 'Vicky Pham', email: '', phone: '', teamId: null, rating: 1200, wins: 0, losses: 0, avatar: '🏓' },
+  { id: 'p34', name: 'Chau Nguyen', email: '', phone: '', teamId: null, rating: 1200, wins: 0, losses: 0, avatar: '🏓' },
 ];
 
 export const seedMatchups: Matchup[] = [
