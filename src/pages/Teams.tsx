@@ -49,56 +49,68 @@ export default function Teams() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Teams</h1>
-          <p className="text-gray-500 text-sm mt-1">{state.teams.length} teams in {state.seasonName}</p>
+          <h1 className="text-2xl font-medium text-gray-900">Teams</h1>
+          <p className="text-gray-600 text-sm mt-1">{state.teams.length} teams in {state.seasonName}</p>
         </div>
         {state.isAdmin && (
           <button
             onClick={() => setShowForm(true)}
-            className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-medium transition-colors shadow-sm"
+            className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded text-sm font-medium uppercase tracking-wide transition-colors shadow-sm"
           >
-            + Add Team
+            Add Team
           </button>
         )}
       </div>
 
-      {/* Team Form Modal */}
+      {/* Team Form Dialog */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
-            <h2 className="text-xl font-semibold mb-4">{editingTeam ? 'Edit Team' : 'Add New Team'}</h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Team Name</label>
-                <input
-                  type="text"
-                  value={formData.name}
-                  onChange={e => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
-                  placeholder="e.g., Smash Masters"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Team Color</label>
-                <div className="flex items-center gap-3">
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
+            <h2 className="px-6 pt-6 pb-2 text-lg font-medium text-gray-900">
+              {editingTeam ? 'Edit Team' : 'Add Team'}
+            </h2>
+            <form onSubmit={handleSubmit}>
+              <div className="px-6 pb-2 space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Team name</label>
                   <input
-                    type="color"
-                    value={formData.color}
-                    onChange={e => setFormData({ ...formData, color: e.target.value })}
-                    className="w-10 h-10 rounded-lg cursor-pointer border-0"
+                    type="text"
+                    value={formData.name}
+                    onChange={e => setFormData({ ...formData, name: e.target.value })}
+                    className="w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded outline-none transition-shadow focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600"
+                    placeholder="e.g., Smash Masters"
+                    required
                   />
-                  <span className="text-sm text-gray-500">{formData.color}</span>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Team color</label>
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="color"
+                      value={formData.color}
+                      onChange={e => setFormData({ ...formData, color: e.target.value })}
+                      aria-label="Team color"
+                      className="h-10 w-14 rounded border border-gray-300 bg-white p-1 cursor-pointer"
+                    />
+                    <span className="text-sm text-gray-600 uppercase">{formData.color}</span>
+                  </div>
                 </div>
               </div>
-              <div className="flex gap-3 pt-2">
-                <button type="submit" className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-2 rounded-lg font-medium transition-colors">
-                  {editingTeam ? 'Update' : 'Create'}
-                </button>
-                <button type="button" onClick={resetForm} className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 rounded-lg font-medium transition-colors">
+              <div className="flex justify-end gap-2 px-6 py-4">
+                <button
+                  type="button"
+                  onClick={resetForm}
+                  className="px-3 py-2 rounded text-sm font-medium uppercase tracking-wide text-gray-600 hover:bg-gray-100 transition-colors"
+                >
                   Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 rounded text-sm font-medium uppercase tracking-wide bg-emerald-600 text-white hover:bg-emerald-700 transition-colors shadow-sm"
+                >
+                  Save
                 </button>
               </div>
             </form>
@@ -111,64 +123,61 @@ export default function Teams() {
         {standings.map((team, idx) => {
           const players = getTeamPlayers(team.id);
           const winRate = team.wins + team.losses > 0 ? Math.round((team.wins / (team.wins + team.losses)) * 100) : 0;
-          
+
           return (
-            <div key={team.id} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
-              <div className="h-2" style={{ backgroundColor: team.color }}></div>
+            <div key={team.id} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+              <div className="h-1" style={{ backgroundColor: team.color }}></div>
               <div className="p-5">
-                <div className="flex items-start justify-between">
+                <div className="flex items-start justify-between gap-2">
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${
-                        idx === 0 ? 'bg-yellow-100 text-yellow-700' :
-                        idx === 1 ? 'bg-gray-100 text-gray-600' :
-                        idx === 2 ? 'bg-orange-100 text-orange-700' :
-                        'bg-gray-50 text-gray-500'
-                      }`}>
-                        #{idx + 1}
+                      <span className="text-xs px-1.5 py-0.5 rounded bg-gray-100 text-gray-600 font-medium tabular-nums">
+                        {idx + 1}
                       </span>
-                      <h3 className="font-semibold text-gray-900">{team.name}</h3>
+                      <h3 className="font-medium text-gray-900">{team.name}</h3>
                     </div>
-                    <p className="text-xs text-gray-500 mt-1">{players.length} players</p>
+                    <p className="text-xs text-gray-600 mt-1">{players.length} players</p>
                   </div>
                   {state.isAdmin && (
-                    <div className="flex gap-1">
-                      <button onClick={() => handleEdit(team)} className="p-1.5 text-gray-400 hover:text-blue-600 rounded transition-colors">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                        </svg>
+                    <div className="flex gap-1 whitespace-nowrap">
+                      <button
+                        onClick={() => handleEdit(team)}
+                        className="px-2 py-1 rounded text-xs font-medium uppercase tracking-wide text-emerald-700 hover:bg-emerald-50 transition-colors"
+                      >
+                        Edit
                       </button>
-                      <button onClick={() => handleDelete(team)} className="p-1.5 text-gray-400 hover:text-red-600 rounded transition-colors">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
+                      <button
+                        onClick={() => handleDelete(team)}
+                        className="px-2 py-1 rounded text-xs font-medium uppercase tracking-wide text-gray-600 hover:bg-gray-100 transition-colors"
+                      >
+                        Remove
                       </button>
                     </div>
                   )}
                 </div>
 
                 <div className="mt-4 grid grid-cols-3 gap-2 text-center">
-                  <div className="bg-green-50 rounded-lg p-2">
-                    <div className="text-lg font-bold text-green-700">{team.wins}</div>
-                    <div className="text-xs text-green-600">Wins</div>
+                  <div className="bg-gray-50 rounded p-2">
+                    <div className="text-lg font-medium text-gray-900 tabular-nums">{team.wins}</div>
+                    <div className="text-xs text-gray-600">Wins</div>
                   </div>
-                  <div className="bg-red-50 rounded-lg p-2">
-                    <div className="text-lg font-bold text-red-700">{team.losses}</div>
-                    <div className="text-xs text-red-600">Losses</div>
+                  <div className="bg-gray-50 rounded p-2">
+                    <div className="text-lg font-medium text-gray-900 tabular-nums">{team.losses}</div>
+                    <div className="text-xs text-gray-600">Losses</div>
                   </div>
-                  <div className="bg-blue-50 rounded-lg p-2">
-                    <div className="text-lg font-bold text-blue-700">{team.pointDiff > 0 ? '+' : ''}{team.pointDiff}</div>
-                    <div className="text-xs text-blue-600">Diff</div>
+                  <div className="bg-gray-50 rounded p-2">
+                    <div className="text-lg font-medium text-gray-900 tabular-nums">{team.pointDiff > 0 ? '+' : ''}{team.pointDiff}</div>
+                    <div className="text-xs text-gray-600">Diff</div>
                   </div>
                 </div>
 
                 {/* Win Rate Bar */}
                 <div className="mt-3">
-                  <div className="flex justify-between text-xs text-gray-500 mb-1">
-                    <span>Win Rate</span>
-                    <span>{winRate}%</span>
+                  <div className="flex justify-between text-xs text-gray-600 mb-1">
+                    <span>Win rate</span>
+                    <span className="tabular-nums">{winRate}%</span>
                   </div>
-                  <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                  <div className="h-1 bg-gray-200 rounded-full overflow-hidden">
                     <div className="h-full rounded-full transition-all" style={{ width: `${winRate}%`, backgroundColor: team.color }}></div>
                   </div>
                 </div>
@@ -176,12 +185,12 @@ export default function Teams() {
                 {/* Roster Preview */}
                 <div className="mt-3 flex flex-wrap gap-1">
                   {players.slice(0, 4).map(p => (
-                    <span key={p.id} className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
-                      {p.avatar} {p.name.split(' ')[0]}
+                    <span key={p.id} className="text-xs bg-gray-100 text-gray-700 px-2 py-0.5 rounded">
+                      {p.name.split(' ')[0]}
                     </span>
                   ))}
                   {players.length > 4 && (
-                    <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">
+                    <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded">
                       +{players.length - 4} more
                     </span>
                   )}
