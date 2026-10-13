@@ -1,6 +1,6 @@
 #!/bin/bash
 # ============================================================
-# PicklePal - Lambda Build & Package Script
+# Zero 2 League - Lambda Build & Package Script
 # ============================================================
 # Builds and packages Lambda functions for deployment
 # Usage: ./build-lambdas.sh
@@ -12,7 +12,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 BUILD_DIR="$PROJECT_ROOT/.build/lambda"
 
-echo "🥒 PicklePal Lambda Builder"
+echo "🥒 Zero 2 League Lambda Builder"
 echo "=========================="
 echo ""
 
@@ -66,13 +66,13 @@ echo "Output directory: $BUILD_DIR"
 echo ""
 echo "Deploy with:"
 echo "  aws lambda update-function-code \\"
-echo "    --function-name picklepal-dev-api-handler \\"
+echo "    --function-name zero2league-dev-api-handler \\"
 echo "    --zip-file fileb://$BUILD_DIR/api-handler.zip"
 echo ""
 echo "  aws lambda update-function-code \\"
-echo "    --function-name picklepal-dev-auto-confirm \\"
+echo "    --function-name zero2league-dev-auto-confirm \\"
 echo "    --zip-file fileb://$BUILD_DIR/auto-confirm.zip"
 echo ""
 echo "  aws lambda update-function-code \\"
-echo "    --function-name picklepal-dev-weekly-reminder \\"
+echo "    --function-name zero2league-dev-weekly-reminder \\"
 echo "    --zip-file fileb://$BUILD_DIR/weekly-reminder.zip"

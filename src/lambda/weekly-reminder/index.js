@@ -1,5 +1,5 @@
 /**
- * PicklePal Weekly Reminder Handler
+ * Zero 2 League Weekly Reminder Handler
  * Triggered by EventBridge every Monday at 9 AM
  * Sends reminders to team captains about upcoming matches
  */
@@ -47,7 +47,7 @@ async function sendMatchReminder(teamName, players, matchup, isHome) {
       await sesClient.send(new SendEmailCommand({
         Destination: { ToAddresses: [player.email] },
         Message: {
-          Subject: { Data: `🥒 PicklePal: Match reminder - ${teamName} vs ${opponentName}` },
+          Subject: { Data: `🥒 Zero 2 League: Match reminder - ${teamName} vs ${opponentName}` },
           Body: {
             Html: {
               Data: `
@@ -69,7 +69,7 @@ async function sendMatchReminder(teamName, players, matchup, isHome) {
                     </div>
                     <p style="font-size: 14px; color: #374151;">Don't forget to enter scores after your match!</p>
                     <a href="${FRONTEND_URL}" style="display: inline-block; background: #059669; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; margin: 16px 0;">
-                      Open PicklePal →
+                      Open Zero 2 League →
                     </a>
                     <p style="font-size: 12px; color: #9ca3af; margin-top: 16px;">
                       See you on the court! 🏓
@@ -79,11 +79,11 @@ async function sendMatchReminder(teamName, players, matchup, isHome) {
               `,
             },
             Text: {
-              Data: `Hi ${player.name},\n\nYou have a match this week: ${teamName} vs ${opponentName}\n${formattedDate} at ${formattedTime}\n${matchup.courtLocation || 'TBD'}\n\nOpen PicklePal: ${FRONTEND_URL}`,
+              Data: `Hi ${player.name},\n\nYou have a match this week: ${teamName} vs ${opponentName}\n${formattedDate} at ${formattedTime}\n${matchup.courtLocation || 'TBD'}\n\nOpen Zero 2 League: ${FRONTEND_URL}`,
             },
           },
         },
-        Source: 'no-reply@picklepal.app',
+        Source: 'no-reply@zero2league.app',
       }));
     } catch (err) {
       console.error(`Failed to send reminder to ${player.email}:`, err);

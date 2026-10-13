@@ -32,6 +32,7 @@ const initialState: LeagueState = {
 
 function loadState(): LeagueState {
   try {
+    // Key predates the "Zero 2 League" rename; changing it would orphan saved league data.
     const saved = localStorage.getItem('picklepal_state');
     if (saved) {
       return JSON.parse(saved);

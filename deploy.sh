@@ -1,13 +1,13 @@
 #!/bin/bash
 # ============================================================
-# PicklePal - Deployment Script
+# Zero 2 League - Deployment Script
 # ============================================================
 # Usage:
 #   ./deploy.sh <environment> <admin-email> [options]
 #
 # Examples:
 #   ./deploy.sh dev admin@example.com
-#   ./deploy.sh prod admin@example.com --domain picklepal.example.com --zone Z1234567890
+#   ./deploy.sh prod admin@example.com --domain zero2league.example.com --zone Z1234567890
 #   ./deploy.sh staging admin@example.com --phone +15551234567
 # ============================================================
 
@@ -21,7 +21,7 @@ BLUE='\033[0;34m'
 NC='\033[0m'
 
 # Defaults
-PROJECT_NAME="picklepal"
+PROJECT_NAME="zero2league"
 REGION="${AWS_DEFAULT_REGION:-us-east-1}"
 STACK_NAME=""
 TEMPLATE_FILE="cloudformation/backend.yaml"
@@ -87,7 +87,7 @@ STACK_NAME="${PROJECT_NAME}-${ENVIRONMENT}"
 
 echo -e "${BLUE}"
 echo "╔══════════════════════════════════════════════╗"
-echo "║         🥒 PicklePal Deployment              ║"
+echo "║         🥒 Zero 2 League Deployment          ║"
 echo "╚══════════════════════════════════════════════╝"
 echo -e "${NC}"
 echo -e "Environment:  ${GREEN}${ENVIRONMENT}${NC}"
@@ -251,7 +251,7 @@ echo ""
 echo -e "${GREEN}✅ Frontend deployed!${NC}"
 echo ""
 echo -e "${BLUE}═══════════════════════════════════════════════${NC}"
-echo -e "  ${GREEN}🥒 PicklePal is live at:${NC} ${FRONTEND_URL}"
+echo -e "  ${GREEN}🥒 Zero 2 League is live at:${NC} ${FRONTEND_URL}"
 echo -e "${BLUE}═══════════════════════════════════════════════${NC}"
 echo ""
 echo -e "${YELLOW}Next steps:${NC}"

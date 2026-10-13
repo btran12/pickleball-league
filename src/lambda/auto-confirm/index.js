@@ -1,5 +1,5 @@
 /**
- * PicklePal Auto-Confirm Handler
+ * Zero 2 League Auto-Confirm Handler
  * Triggered by EventBridge every hour to check for expired confirmation tokens
  * and auto-confirm scores that haven't been disputed within the time window.
  */

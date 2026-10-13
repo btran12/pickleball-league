@@ -1,5 +1,5 @@
-# pickleball-league
-Pickleball League Web App
+# Zero 2 League
+Pickleball league manager web app (repo: `pickleball-league`)
 
 ## Deployment (GitHub Pages)
 

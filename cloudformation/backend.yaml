@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: >
-  PicklePal - Pickleball League Manager Backend Infrastructure
+  Zero 2 League - Pickleball League Manager Backend Infrastructure
   Includes: API Gateway, Lambda, DynamoDB, Cognito, S3, CloudFront, SES, SNS, EventBridge
 
 # ============================================================
@@ -9,7 +9,7 @@ Description: >
 Parameters:
   ProjectName:
     Type: String
-    Default: picklepal
+    Default: zero2league
     Description: Name prefix for all resources
 
   Environment:
@@ -32,7 +32,7 @@ Parameters:
   DomainName:
     Type: String
     Default: ''
-    Description: Custom domain name (optional, e.g., picklepal.example.com)
+    Description: Custom domain name (optional, e.g., zero2league.example.com)
 
   HostedZoneId:
     Type: String
@@ -284,11 +284,11 @@ Resources:
         AllowAdminCreateUserOnly: true
         InviteMessageTemplate:
           EmailMessage: !Sub |
-            <p>Welcome to PicklePal! Your admin account has been created.</p>
+            <p>Welcome to Zero 2 League! Your admin account has been created.</p>
             <p>Username: {username}</p>
             <p>Temporary password: {####}</p>
             <p>Please change your password on first login.</p>
-          EmailSubject: 'PicklePal Admin Access'
+          EmailSubject: 'Zero 2 League Admin Access'
       AutoVerifiedAttributes:
         - email
       UsernameAttributes:
@@ -528,7 +528,7 @@ Resources:
                 'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS',
               },
               body: JSON.stringify({
-                message: 'PicklePal API is running',
+                message: 'Zero 2 League API is running',
                 environment: process.env.ENVIRONMENT,
                 path: event.path,
                 method: event.httpMethod,
@@ -656,7 +656,7 @@ Resources:
     Type: AWS::ApiGateway::RestApi
     Properties:
       Name: !Sub '${ProjectName}-${Environment}-api'
-      Description: PicklePal REST API
+      Description: Zero 2 League REST API
       EndpointConfiguration:
         Types:
           - REGIONAL
@@ -954,7 +954,7 @@ Resources:
     Type: AWS::ApiGateway::UsagePlan
     Properties:
       UsagePlanName: !Sub '${ProjectName}-${Environment}-usage-plan'
-      Description: Rate limiting for PicklePal API
+      Description: Rate limiting for Zero 2 League API
       Throttle:
         BurstLimit: 100
         RateLimit: 50

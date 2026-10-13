@@ -1,4 +1,4 @@
-# PicklePal - CloudFormation Backend Infrastructure
+# Zero 2 League - CloudFormation Backend Infrastructure
 
 ## Architecture Overview
 
@@ -117,13 +117,13 @@ chmod +x deploy.sh
 ./deploy.sh dev your-email@example.com
 
 # Production with custom domain
-./deploy.sh prod admin@picklepal.com \
-  --domain picklepal.example.com \
+./deploy.sh prod admin@zero2league.com \
+  --domain zero2league.example.com \
   --zone Z1234567890ABC \
   --phone +15551234567
 
 # Staging with SMS notifications
-./deploy.sh staging admin@picklepal.com --phone +15551234567
+./deploy.sh staging admin@zero2league.com --phone +15551234567
 ```
 
 ### Manual Deployment (without script)
@@ -131,10 +131,10 @@ chmod +x deploy.sh
 ```bash
 # 1. Create the stack
 aws cloudformation create-stack \
-  --stack-name picklepal-dev \
+  --stack-name zero2league-dev \
   --template-body file://cloudformation/backend.yaml \
   --parameters \
-    ParameterKey=ProjectName,ParameterValue=picklepal \
+    ParameterKey=ProjectName,ParameterValue=zero2league \
     ParameterKey=Environment,ParameterValue=dev \
     ParameterKey=AdminEmail,ParameterValue=your-email@example.com \
   --capabilities CAPABILITY_NAMED_IAM \
@@ -142,17 +142,17 @@ aws cloudformation create-stack \
 
 # 2. Wait for completion
 aws cloudformation wait stack-create-complete \
-  --stack-name picklepal-dev \
+  --stack-name zero2league-dev \
   --region us-east-1
 
 # 3. Get outputs
 aws cloudformation describe-stacks \
-  --stack-name picklepal-dev \
+  --stack-name zero2league-dev \
   --query 'Stacks[0].Outputs' \
   --output json
 
 # 4. Deploy frontend
-aws s3 sync dist/ s3://picklepal-dev-frontend-ACCOUNTID --delete
+aws s3 sync dist/ s3://zero2league-dev-frontend-ACCOUNTID --delete
 aws cloudfront create-invalidation \
   --distribution-id DIST_ID \
   --paths "/*"
@@ -162,7 +162,7 @@ aws cloudfront create-invalidation \
 
 | Parameter | Required | Default | Description |
 |-----------|----------|---------|-------------|
-| `ProjectName` | No | `picklepal` | Resource name prefix |
+| `ProjectName` | No | `zero2league` | Resource name prefix |
 | `Environment` | No | `prod` | `dev`, `staging`, or `prod` |
 | `AdminEmail` | **Yes** | — | Initial admin user email |
 | `AdminPhone` | No | — | Phone for SMS (E.164 format) |
@@ -257,7 +257,7 @@ zip -r ../../lambda/api-handler.zip .
 
 # Update function code
 aws lambda update-function-code \
-  --function-name picklepal-dev-api-handler \
+  --function-name zero2league-dev-api-handler \
   --zip-file fileb://lambda/api-handler.zip
 ```
 
@@ -309,13 +309,13 @@ jobs:
 
 ```bash
 # Delete the stack (removes all resources)
-aws cloudformation delete-stack --stack-name picklepal-dev --region us-east-1
+aws cloudformation delete-stack --stack-name zero2league-dev --region us-east-1
 
 # Empty S3 bucket first if needed
-aws s3 rm s3://picklepal-dev-frontend-ACCOUNTID --recursive
+aws s3 rm s3://zero2league-dev-frontend-ACCOUNTID --recursive
 
 # Wait for deletion
-aws cloudformation wait stack-delete-complete --stack-name picklepal-dev --region us-east-1
+aws cloudformation wait stack-delete-complete --stack-name zero2league-dev --region us-east-1
 ```
 
 ## Security Notes

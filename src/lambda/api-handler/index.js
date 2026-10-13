@@ -1,5 +1,5 @@
 /**
- * PicklePal API Handler
+ * Zero 2 League API Handler
  * Main Lambda function for all API operations
  * 
  * Environment Variables:
@@ -84,13 +84,13 @@ async function sendConfirmationEmail(toEmail, toName, matchup, token) {
   const command = new SendEmailCommand({
     Destination: { ToAddresses: [toEmail] },
     Message: {
-      Subject: { Data: `🥒 PicklePal: Scores submitted for your match - Please confirm` },
+      Subject: { Data: `🥒 Zero 2 League: Scores submitted for your match - Please confirm` },
       Body: {
         Html: {
           Data: `
             <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto;">
               <div style="background: linear-gradient(135deg, #059669, #0d9488); padding: 20px; border-radius: 12px 12px 0 0;">
-                <h1 style="color: white; margin: 0; font-size: 24px;">🥒 PicklePal</h1>
+                <h1 style="color: white; margin: 0; font-size: 24px;">🥒 Zero 2 League</h1>
               </div>
               <div style="padding: 24px; background: #f9fafb; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 12px 12px;">
                 <p style="font-size: 16px; color: #111827;">Hi ${toName},</p>
@@ -117,7 +117,7 @@ async function sendConfirmationEmail(toEmail, toName, matchup, token) {
         },
       },
     },
-    Source: 'no-reply@picklepal.app',
+    Source: 'no-reply@zero2league.app',
   });
 
   await sesClient.send(command);
@@ -127,7 +127,7 @@ async function sendNotification(message) {
   await snsClient.send(new PublishCommand({
     TopicArn: process.env.SNS_TOPIC_ARN,
     Message: JSON.stringify(message),
-    Subject: 'PicklePal Notification',
+    Subject: 'Zero 2 League Notification',
   }));
 }
 
@@ -528,7 +528,7 @@ exports.handler = async (event) => {
     // Route: / (health check)
     if (path === '/' || path === '') {
       return response(200, {
-        service: 'PicklePal API',
+        service: 'Zero 2 League API',
         version: '1.0.0',
         environment: process.env.ENVIRONMENT,
         timestamp: new Date().toISOString(),

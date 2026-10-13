@@ -14,7 +14,7 @@ export default function Dashboard() {
       <div className="bg-emerald-700 rounded-lg p-6 md:p-8 text-white">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <h1 className="text-2xl md:text-3xl font-medium">Welcome to PicklePal</h1>
+            <h1 className="text-2xl md:text-3xl font-medium">Welcome to Zero 2 League</h1>
             <p className="text-emerald-100 mt-1 text-sm">
               {state.seasonName} • Week {state.currentWeek} • {state.teams.length} Teams • {state.players.length} Players
             </p>

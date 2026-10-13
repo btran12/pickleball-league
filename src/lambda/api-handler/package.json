@@ -1,7 +1,7 @@
 {
-  "name": "picklepal-api-handler",
+  "name": "zero2league-api-handler",
   "version": "1.0.0",
-  "description": "PicklePal API Lambda Handler",
+  "description": "Zero 2 League API Lambda Handler",
   "main": "index.js",
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.500.0",
